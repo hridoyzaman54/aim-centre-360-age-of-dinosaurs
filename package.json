@@ -5,6 +5,7 @@
 	"scripts": {
 		"dev": "react-router dev",
 		"build": "react-router build && node __create/copy-static.js",
+		"deploy:firebase": "npm run build && firebase deploy --only functions,hosting",
 		"typecheck": "react-router typegen && tsc --noEmit"
 	},
 	"dependencies": {

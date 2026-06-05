@@ -4,9 +4,5 @@
 
 [[redirects]]
   from = "/*"
-  to = "/.netlify/functions/server"
+  to = "/index.html"
   status = 200
-  force = false # Only redirect if the file isn't found in the publish directory
-
-[functions]
-  included_files = ["build/server/**"]
