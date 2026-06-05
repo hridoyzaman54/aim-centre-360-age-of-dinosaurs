@@ -2,7 +2,6 @@ import { getToken } from '@auth/core/jwt';
 import React from 'react';
 import path from 'node:path';
 import { renderToString } from 'react-dom/server';
-import routes from '../../../routes';
 import { serializeError } from 'serialize-error';
 import cleanStack from 'clean-stack';
 
@@ -31,6 +30,13 @@ const getHTMLOrError = (component) => {
 	}
 };
 export async function GET(request) {
+	let routes = [];
+	try {
+		const routesModule = await import('../../../routes.ts');
+		routes = routesModule.default || [];
+	} catch (error) {
+		console.debug('Error loading routes for SSR testing:', error);
+	}
 	const results = await Promise.allSettled(
 		routes.map(async (route) => {
 			let component = null;
