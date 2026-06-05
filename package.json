@@ -4,6 +4,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "react-router dev",
+		"build": "react-router build && node __create/copy-static.js",
 		"typecheck": "react-router typegen && tsc --noEmit"
 	},
 	"dependencies": {
