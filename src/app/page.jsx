@@ -15,6 +15,7 @@ export default function DinosaurErasPage() {
   const [timelineVisible, setTimelineVisible] = useState(false);
   const [extinctionVisible, setExtinctionVisible] = useState(false);
   const [viewer3D, setViewer3D] = useState(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const statsRef = useRef(null);
   const timelineRef = useRef(null);
   const extinctionRef = useRef(null);
@@ -139,14 +140,16 @@ export default function DinosaurErasPage() {
       {/* Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-black/30 backdrop-blur-md border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 relative z-[60]">
             <span className="text-xl md:text-2xl">🦕</span>
             <div className="flex flex-col items-start leading-none">
               <div className="font-playfair font-bold text-base md:text-lg text-amber-400 tracking-wider">AIM Centre 360</div>
               <div className="text-[7px] md:text-[8px] text-stone-400 tracking-[0.15em] font-medium mt-0.5 uppercase">AIM High, Achieve Infinity</div>
             </div>
           </div>
-          <div className="flex gap-4 md:gap-8 font-dmsans text-xs md:text-sm tracking-widest">
+          
+          {/* Desktop Menu */}
+          <div className="hidden md:flex gap-8 font-dmsans text-sm tracking-widest relative z-[60]">
             {[
               ["#eras", "Eras"],
               ["#dinosaurs", "Species"],
@@ -162,6 +165,41 @@ export default function DinosaurErasPage() {
                 {label}
               </a>
             ))}
+          </div>
+
+          {/* Mobile Menu Toggle */}
+          <button 
+            className="md:hidden relative z-[60] p-2 text-stone-300"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Toggle Menu"
+          >
+            <div className="w-6 flex flex-col gap-1.5">
+              <span className={`block h-0.5 bg-current transition-transform duration-300 ${isMenuOpen ? 'rotate-45 translate-y-2' : ''}`} />
+              <span className={`block h-0.5 bg-current transition-opacity duration-300 ${isMenuOpen ? 'opacity-0' : ''}`} />
+              <span className={`block h-0.5 bg-current transition-transform duration-300 ${isMenuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+            </div>
+          </button>
+
+          {/* Mobile Menu Overlay */}
+          <div className={`fixed inset-0 bg-[#080B04]/95 backdrop-blur-xl z-[50] md:hidden flex flex-col items-center justify-center transition-all duration-300 ${isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+            <div className="flex flex-col gap-8 font-dmsans text-xl tracking-widest text-center">
+              {[
+                ["#eras", "Eras"],
+                ["#dinosaurs", "Species"],
+                ["#timeline", "Timeline"],
+                ["#science", "Science"],
+                ["#extinction", "Extinction"],
+              ].map(([href, label]) => (
+                <a
+                  key={href}
+                  href={href}
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-stone-300 hover:text-amber-400 transition-colors uppercase"
+                >
+                  {label}
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </nav>
