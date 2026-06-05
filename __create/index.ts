@@ -4,7 +4,37 @@ import { skipCSRFCheck } from '@auth/core';
 import Credentials from '@auth/core/providers/credentials';
 import { authHandler, initAuthConfig } from '@hono/auth-js';
 import { Pool, neonConfig } from '@neondatabase/serverless';
-import { hash, verify } from 'argon2';
+import crypto from 'node:crypto';
+
+async function hash(password: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const salt = crypto.randomBytes(16).toString('hex');
+    crypto.scrypt(password, salt, 64, (err, derivedKey) => {
+      if (err) return reject(err);
+      resolve(`scrypt:${salt}:${derivedKey.toString('hex')}`);
+    });
+  });
+}
+
+async function verify(hashVal: string, password: string): Promise<boolean> {
+  if (!hashVal) return false;
+  if (!hashVal.startsWith('scrypt:')) {
+    try {
+      const argon2 = await import('argon2');
+      return await argon2.verify(hashVal, password);
+    } catch {
+      console.warn('Argon2 package not available, cannot verify legacy hash');
+      return false;
+    }
+  }
+  const [_, salt, key] = hashVal.split(':');
+  return new Promise((resolve, reject) => {
+    crypto.scrypt(password, salt, 64, (err, derivedKey) => {
+      if (err) return reject(err);
+      resolve(key === derivedKey.toString('hex'));
+    });
+  });
+}
 import { Hono } from 'hono';
 import { contextStorage, getContext } from 'hono/context-storage';
 import { cors } from 'hono/cors';
