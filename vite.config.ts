@@ -18,6 +18,9 @@ export default defineConfig({
   envPrefix: 'NEXT_PUBLIC_',
   build: {
     target: 'esnext',
+    rollupOptions: {
+      external: ['argon2']
+    }
   },
   optimizeDeps: {
     // Explicitly include fast-glob, since it gets dynamically imported and we
