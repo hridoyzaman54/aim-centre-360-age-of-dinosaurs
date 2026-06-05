@@ -323,7 +323,22 @@ app.use('/api/auth/*', async (c, next) => {
 });
 app.route(API_BASENAME, api);
 
-export default await createHonoServer({
-  app,
-  defaultLogger: false,
-});
+import { createRequestHandler } from 'react-router';
+
+let exportApp;
+if (process.env.VERCEL === '1') {
+  app.all('*', async (c) => {
+    // @ts-expect-error - Virtual module resolved by Vite/React Router at build time
+    const build = await import('virtual:react-router/server-build');
+    const requestHandler = createRequestHandler(build, process.env.NODE_ENV === 'development' ? 'development' : 'production');
+    return requestHandler(c.req.raw);
+  });
+  exportApp = app;
+} else {
+  exportApp = await createHonoServer({
+    app,
+    defaultLogger: false,
+  });
+}
+
+export default exportApp;
