@@ -15,9 +15,25 @@ function copyFolderSync(from, to) {
   });
 }
 
-// Ensure the destination public directory exists
-fs.mkdirSync('public', { recursive: true });
+// Copy build/client/assets to .vercel_static/assets (root-level static output)
+const outDir = '.vercel_static';
+fs.mkdirSync(outDir, { recursive: true });
 
-// Copy assets and images from build/client to public
-copyFolderSync('build/client', 'public');
-console.log('Successfully copied build/client static assets to public folder for Vercel');
+// Copy compiled JS/CSS assets
+copyFolderSync('build/client/assets', path.join(outDir, 'assets'));
+
+// Copy images from public/images (these are committed to git)
+copyFolderSync('public/images', path.join(outDir, 'images'));
+
+// Copy any other static files from build/client root (manifests, etc.)
+const clientRoot = 'build/client';
+if (fs.existsSync(clientRoot)) {
+  fs.readdirSync(clientRoot).forEach(item => {
+    const src = path.join(clientRoot, item);
+    if (!fs.lstatSync(src).isDirectory()) {
+      fs.copyFileSync(src, path.join(outDir, item));
+    }
+  });
+}
+
+console.log('Successfully copied static assets to .vercel_static/ for Vercel deployment');
